@@ -1,0 +1,39 @@
+- name: Déploiement d'une WebApp simple
+  hosts: web
+  become: yes
+  tasks:
+    - name: Installer Python3 (si ce n’est pas déjà fait)
+      apt:
+        name: python3
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Créer un dossier pour héberger l'app
+      file:
+        path: /var/www/monapp
+        state: directory
+        mode: '0755'
+
+    - name: Copier le dossier "database"
+      copy:
+        src: ../files/database
+        dest: /var/www/monapp/database
+        
+    - name: Copier le dossier public
+      copy:
+        src: ../files/public
+        dest: /var/www/monapp/public
+
+    - name: Copier le dossier src
+      copy:
+        src: ../files/src
+        dest: /var/www/monapp/src
+
+    - name: Lancer un petit serveur HTTP
+      shell: python3 -m http.server 8080 --directory /var/www/monapp &
+      args:
+        executable: /bin/bash
+
+    - name: Afficher le lien
+      debug:
+        msg: "L'application est accessible sur http://localhost:8080"

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Qualité de l'Air</title>
+    <link rel="stylesheet" href="global_style_dashboard.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <span class="dashboard-title">Dashboard user</span>
+            <div class="disconnect">
+                <label for="toggle" id="disconnect-label">Disconnect</label>
+            </div>
+            <!-- Notification d'erreur -->
+            <div id="error-notification" class="error-notification" style="display: none;">
+                Une erreur est survenue ! Veuillez réessayer.
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Barre de recherche -->
+        <div class="search-section">
+            <h2>Rechercher une salle</h2>
+            <input type="text" id="search-input" placeholder="Ex: Salle E304 ou Salle E3...">
+            <button id="search-btn">🔍 Rechercher</button>
+        </div>
+
+        <!-- Filtre par couleur -->
+        <div class="filter-section">
+            <h2>Filtrer par qualité</h2>
+            <select id="quality-filter">
+                <option value="all">Tous</option>
+                <option value="good">Bon</option>
+                <option value="medium">Moyen</option>
+                <option value="bad">Mauvais</option>
+            </select>
+        </div>
+
+
+        <!-- 🏠 Liste des salles -->
+        <div id="room-list">
+            <h1>Captor View</h1>
+            <!-- Salles dynamiques ici -->
+        </div>
+    </main>
+
+    <script src="data_dashboard.js"></script>
+    <script src="user_dashboard_script.js"></script>
+</body>
+</html>

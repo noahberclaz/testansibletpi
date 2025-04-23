@@ -1,0 +1,7 @@
+- name: Arrêter la WebApp python http.server
+  hosts: web
+  become: yes
+  tasks:
+    - name: Tuer le processus http.server
+      shell: pkill -f "python3 -m http.server"
+      ignore_errors: yes

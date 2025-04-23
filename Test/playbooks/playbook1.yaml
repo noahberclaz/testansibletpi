@@ -1,0 +1,6 @@
+- name: Test Ansible local
+  hosts: local
+  tasks:
+    - name: Dire bonjour
+      debug:
+        msg: "Hello depuis Ansible !"
