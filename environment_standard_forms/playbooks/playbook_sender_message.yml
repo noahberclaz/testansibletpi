@@ -1,0 +1,11 @@
+# Nom du playbook : Envoie d'un message
+# Auteur : Noah Berclaz
+# Date : 23.04.2025
+# Description : Ce playbook envoie un message depuis le localhost
+
+- name: Envoie d'un message
+  hosts: localhost
+  vars_files:
+    - ../secrets/secrets.yml
+  roles:
+    - ../roles/sender_admin_password
