@@ -1,0 +1,5 @@
+---
+# tasks file for ngnix
+- name: Afficher le mot de passe admin depuis le Vault
+  debug:
+    msg: "Le mot de passe admin est : {{ admin_password }}"

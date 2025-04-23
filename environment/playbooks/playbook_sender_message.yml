@@ -1,8 +1,6 @@
 - name: Envoie d'un message
-  hosts: local
+  hosts: localhost
   vars_files:
     - ../secrets/secrets.yml
-  tasks:
-    - name: Show admin password
-      debug:
-        msg: "Mot de passe : {{ admin_password }}"
+  roles:
+    - ../roles/sender_admin_password
