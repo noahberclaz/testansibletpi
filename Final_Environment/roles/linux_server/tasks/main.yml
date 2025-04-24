@@ -1,9 +1,7 @@
----
 # Nom du playbook : Mise à jour des serveurs Linux
 # Auteur : Noah Berclaz
 # Date : 24.04.2025
 # Description : Ce playbook applique les mises à jour sur les machines linux
-
 ---
 - name: Attendre que le verrou dpkg soit libéré
   become: true
@@ -20,20 +18,10 @@
     name: update-manager-core
     state: present
 
+- name: Exécuter apt update
+  command: apt update
+
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
     cache_valid_time: 3600  # met à jour seulement si le cache a plus d'une heure
-
-- name: Upgrade all packages
-  ansible.builtin.apt:
-    upgrade: dist
-
-- name: Autoremove unnecessary packages
-  ansible.builtin.apt:
-    autoremove: yes
-
-- name: Clean up the local repository of retrieved package files
-  ansible.builtin.apt:
-    autoclean: yes
-  notify: Reboot the server

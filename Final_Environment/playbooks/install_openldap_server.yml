@@ -1,0 +1,19 @@
+# Nom du playbook : Installation environment LDAP
+# Auteur : Noah Berclaz
+# Date : 24.04.2025
+# Description : Ce playbook installe l'environnement OpenLDAP
+---
+- name: Installation d'un serveur Web
+  hosts: ldap
+  become: true
+  vars_files:
+    - ../secrets/secrets.yml
+  vars:
+    ssh_key_file: "../roles/openldap_server/files/id_rsa.pub"
+    users:
+      - username: "{{ new_username }}"
+        password: "{{ new_password }}"
+        ssh_key: "{{ lookup('file', ssh_key_file) }}"
+
+  roles:
+    - ../roles/openldap_server
