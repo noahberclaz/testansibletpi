@@ -1,0 +1,472 @@
+/* Style général */
+.hidden { display: none; }
+
+body {
+    background: #d3d3d3;
+    font-family: Arial, sans-serif;
+}
+
+main {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+/* Navbar */
+.navbar {
+    background: #555;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.dashboard-title {
+    font-size: 1.2rem;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.actions button:hover {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Liste des salles */
+.room {
+    background: #888;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#room-name {
+    text-align: center;
+}
+
+#back-btn {
+    background-color: gray;
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+    transition: all 0.3s ease-in-out;
+}
+
+#back-btn:hover {
+    background: rgb(255, 255, 255);
+    border-radius: 5px;
+    color: black;
+    padding: 10px;
+    transform: scale(1.15);
+    cursor: pointer;
+}
+
+.graphique-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 400px;
+    width: auto;
+}
+
+.graphique-details {
+    height: 600px;
+    width: 70%;
+    margin: 0 auto;
+}
+
+.room h2 a {
+    color: white;
+    text-decoration: none;
+    background: #444;
+    padding: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+.room h2 a:hover {
+    background: rgb(255, 255, 255);
+    border-radius: 5px;
+    color: black;
+    padding: 10px;
+    transform: scale(1.15);
+    cursor: pointer;
+}
+
+label {
+    cursor: pointer;
+}
+
+.image_button {
+    flex-direction: row;
+}
+
+.download {
+    background: black;
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: min-content;
+    height: min-content;
+    display: flex;
+    justify-content: baseline;
+}
+
+.state {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.status h3 {
+    margin: 20px 0;
+    margin-left: 150px;
+    margin-bottom: 50px;
+}
+
+.indicator {
+    background: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.emoji {
+    font-size: 1.5rem;
+}
+
+/* Bouton options */
+.options-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.options-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.options-menu.hidden {
+    display: none;
+}
+
+.disconnect {
+    background: gray;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.disconnect:hover {
+    background: rgb(180, 0, 0);
+    border-radius: 5px;
+    box-shadow: 40px 40px 80px rgba(0, 0, 0, 1.2);
+    padding: 10px;
+    transform: scale(1.15);
+    cursor: pointer;
+}
+
+.options-menu button {
+    border: none;
+    background: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+/* Page Détails Salle Admin */
+#room-details {
+    background: #ddd;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+#room-info {
+    min-height: 100px;
+}
+
+.details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.info {
+    background: #eee;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    width: 100px;
+}
+
+.info:nth-child(1), .info:nth-child(2), .info:nth-child(3), .info:nth-child(4) {
+    flex-basis: 40%;
+}
+
+.info img {
+    width: 40px;
+    height: 40px;
+}
+
+.options_button_admin {
+    height: 20px;
+    width: 20px;
+}
+
+/* Couleur carré - qualité air */
+.quality-low {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    background-color: red;
+    display: inline-block;
+}
+
+.quality-medium {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    background-color: orange;
+    display: inline-block;
+}
+
+.quality-high {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    background-color: green;
+    display: inline-block;
+}
+
+/* Style de la fenêtre modale */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal:not(.hidden) {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #f44336;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-content button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+}
+
+/* Styles pour les notifications */
+.success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    display: none;
+}
+
+.error-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 9999;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Styles pour les boutons d'édition/suppression */
+.edit-room:hover {
+    background-color: rgb(161, 161, 161);
+}
+
+.delete-room:hover {
+    background-color: rgb(161, 161, 161);
+}
+
+/* Style pour le lien capteur */
+.link_captor {
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+
+/* Ajout des styles pour la barre de recherche */
+.search-section {
+    background: #666;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-section h2 {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.search-section input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+}
+
+.search-section button {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-section button:hover {
+    background: gray;
+}
+
+/* Message pour aucune salle trouvée */
+.no-rooms-message {
+    color: white;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Section de filtre par couleur */
+.filter-section {
+    background: #666;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-section h2 {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.filter-section select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+.filter-section select:focus {
+    outline: none;
+    border-color: #888;
+}
