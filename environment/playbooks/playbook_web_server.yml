@@ -2,3 +2,6 @@
   hosts: Linux_web_server
   roles:
     - ../roles/nginx_web_server
+  vars_files:
+    - ../../secrets/secrets.yml
+  become: true

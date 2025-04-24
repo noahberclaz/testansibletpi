@@ -1,0 +1,7 @@
+
+
+Créer/modifier/visionner un vault Ansible
+
+Ansible-vault init secrets.yml
+Ansible-vault edit secrets.yml
+Ansible-vault view secrets.yml
