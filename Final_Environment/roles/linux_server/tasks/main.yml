@@ -1,0 +1,42 @@
+---
+- name: Corriger une interruption de dpkg si nécessaire
+  become: true
+  shell: dpkg --configure -a
+  changed_when: false
+  register: dpkg_output
+
+- name: Afficher la sortie de dpkg
+  debug:
+    var: dpkg_output.stdout_lines
+
+- name: Attendre que le verrou dpkg soit libéré
+  become: true
+  shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+          fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do
+      echo "En attente que dpkg/apt se libère..."
+      sleep 5
+    done
+  changed_when: false
+
+- name: Ensure update-manager-core is installed
+  ansible.builtin.apt:
+    name: update-manager-core
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600  # met à jour seulement si le cache a plus d'une heure
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Autoremove unnecessary packages
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Clean up the local repository of retrieved package files
+  ansible.builtin.apt:
+    autoclean: yes

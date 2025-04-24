@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Capteurs</title>
+    <link rel="stylesheet" href="dashboard_captor.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <span class="dashboard-title">Dashboard Capteurs</span>
+            <div class="actions">
+                <!-- Bouton Retour -->
+                <a href="admin_dashboard.html" class="link_admin">
+                    <button id="back-to-admin-btn">⬅ Retour</button>
+                </a>
+                <button id="add-captor-btn">➕ Ajouter un capteur</button>
+            </div>
+            <div class="disconnect">
+                <label for="toggle">Disconnect</label>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Liste des capteurs -->
+        <div id="captor-list">
+            <h1>Liste des Capteurs</h1>
+            <!-- Les capteurs seront générés ici dynamiquement -->
+        </div>
+    </main>
+
+    <!-- Fenêtre modale pour ajouter un capteur -->
+    <div id="add-captor-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <h2>Ajouter un Capteur</h2>
+            <label for="captor-id">ID du Capteur :</label>
+            <input type="number" id="captor-id" placeholder="Généré automatiquement" disabled>
+
+            <label for="captor-room">Salle assignée :</label>
+            <select id="captor-room">
+                <option value="Non assigné">Non assigné</option>
+                <option value="Salle 1">Salle 1</option>
+                <option value="Salle 2">Salle 2</option>
+                <option value="Salle 3">Salle 3</option>
+            </select>
+
+            <button id="save-captor-btn">Ajouter</button>
+        </div>
+    </div>
+
+    <!-- Fenêtre modale pour modifier un capteur -->
+    <div id="edit-captor-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <h2>Modifier un Capteur</h2>
+            <input type="hidden" id="edit-captor-id">
+            <label for="edit-captor-room">Salle assignée :</label>
+            <select id="edit-captor-room">
+                <option value="Non assigné">Non assigné</option>
+                <option value="Salle 1">Salle 1</option>
+                <option value="Salle 2">Salle 2</option>
+                <option value="Salle 3">Salle 3</option>
+            </select>
+
+            <button id="update-captor-btn">Mettre à jour</button>
+        </div>
+    </div>
+
+    <script src="dashboard_captor.js"></script>
+</body>
+</html>

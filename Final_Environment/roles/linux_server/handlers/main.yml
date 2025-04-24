@@ -1,0 +1,6 @@
+---
+# handlers file for linux_server
+- name: Reboot the server
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+    test_command: whoami
