@@ -1,0 +1,7 @@
+- name: Installation d'un serveur Web
+  hosts: ubuntu_servers
+  vars_files:
+    - ../secrets/secrets.yml
+  become: true
+  roles:
+    - ../roles/linux_server

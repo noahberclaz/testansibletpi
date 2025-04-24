@@ -1,0 +1,18 @@
+---
+# tasks file for linux_server
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600  # met à jour seulement si le cache a plus d'une heure
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Autoremove unnecessary packages
+      ansible.builtin.apt:
+        autoremove: yes
+
+    - name: Clean up the local repository of retrieved package files
+      ansible.builtin.apt:
+        autoclean: yes
