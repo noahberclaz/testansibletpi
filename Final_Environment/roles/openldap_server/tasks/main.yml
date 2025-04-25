@@ -3,99 +3,135 @@
 # Date : 24.04.2025
 # Description : Ce playbook installe tout le nécéssaire pour l'application web cible
 ---
-- name: Installer debconf-utils et python-ldap sur le serveur distant
-  apt:
-    name:
-      - debconf-utils
-      - python3-ldap
-    state: present
-    update_cache: yes
-  become: yes
+  - name: Installer debconf-utils et python-ldap sur le serveur distant
+    apt:
+      name:
+        - debconf-utils
+        - python3-ldap
+      state: present
+      update_cache: yes
 
-- name: Installer les paquets OpenLDAP
-  apt:
-    name:
-      - slapd
-      - ldap-utils
-    state: present
-    update_cache: yes
+  - name: Installer les paquets OpenLDAP
+    apt:
+      name:
+        - slapd
+        - ldap-utils
+      state: present
+      update_cache: yes
 
-- name: Pré-configurer slapd avec debconf
-  ansible.builtin.debconf:
-    name: slapd
-    question: "{{ item.question }}"
-    value: "{{ ldap_admin_password }}"
-    vtype: "string"
-  loop:
-    - { question: "slapd/internal/generated_adminpw" }
-    - { question: "slapd/internal/adminpw" }
-    - { question: "slapd/internal/adminpw_again" }
-    - { question: "slapd/password1" }
-    - { question: "slapd/password2" }
+  - name: Pré-configurer slapd avec debconf
+    ansible.builtin.debconf:
+      name: slapd
+      question: "{{ item.question }}"
+      value: "{{ ldap_admin_password }}"
+      vtype: "string"
+    loop:
+      - { question: "slapd/internal/generated_adminpw" }
+      - { question: "slapd/internal/adminpw" }
+      - { question: "slapd/internal/adminpw_again" }
+      - { question: "slapd/password1" }
+      - { question: "slapd/password2" }
 
-- name: Réinstaller slapd en mode silencieux avec les paramètres préconfigurés
-  apt:
-    name: slapd
-    state: present
-    force: yes
+  - name: Réinstaller slapd en mode silencieux avec les paramètres préconfigurés
+    apt:
+      name: slapd
+      state: present
+      force: yes
 
-- name: Générer le fichier debconf pour la configuration initiale de slapd
-  debconf:
-    name: slapd
-    question: "{{ item.question }}"
-    value: "{{ item.value }}"
-    vtype: "{{ item.vtype }}"
-  with_items:
-    - { question: "slapd/internal/adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
-    - { question: "slapd/internal/generated_adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
-    - { question: "slapd/password1", value: "{{ ldap_admin_password }}", vtype: "password" }
-    - { question: "slapd/password2", value: "{{ ldap_admin_password }}", vtype: "password" }
-    - { question: "slapd/domain", value: "{{ ldap_domain }}", vtype: "string" }
-    - { question: "slapd/allow_ldap_v2", value: "false", vtype: "boolean" }
-    - { question: "slapd/no_configuration", value: "false", vtype: "boolean" }
+  - name: Générer le fichier debconf pour la configuration initiale de slapd
+    debconf:
+      name: slapd
+      question: "{{ item.question }}"
+      value: "{{ item.value }}"
+      vtype: "{{ item.vtype }}"
+    with_items:
+      - { question: "slapd/internal/adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/internal/generated_adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/password1", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/password2", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/domain", value: "{{ ldap_domain }}", vtype: "string" }
+      - { question: "slapd/allow_ldap_v2", value: "false", vtype: "boolean" }
+      - { question: "slapd/no_configuration", value: "false", vtype: "boolean" }
 
-- name: Reconfigurer slapd
-  command: dpkg-reconfigure -f noninteractive slapd
+  - name: Reconfigurer slapd
+    command: dpkg-reconfigure -f noninteractive slapd
 
-- name: Vérifier si ldap_domain est bien formé
-  assert:
-    that:
-      - ldap_domain.split('.') | length == 2
-    fail_msg: "Le domaine LDAP n'est pas valide, il doit être sous forme 'example.com'."
+  - name: Vérifier si ldap_domain est bien formé
+    assert:
+      that:
+        - ldap_domain.split('.') | length == 2
+      fail_msg: "Le domaine LDAP n'est pas valide, il doit être sous forme 'example.com'."
 
-- name: Créer une OU pour les utilisateurs s’il n’existe pas
-  ldap_entry:
-    dn: "ou=users,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
-    objectClass:
-      - organizationalUnit
-    attributes:
-      ou: users
-    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
-    bind_pw: "{{ ldap_admin_password }}"
-    server_uri: "ldapi:///"
-    validate_certs: false
+  - name: Créer une OU pour les utilisateurs s’il n’existe pas
+    community.general.ldap_entry:
+      dn: "ou=users,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+      objectClass:
+        - organizationalUnit
+      attributes:
+        ou: users
+      bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+      bind_pw: "{{ ldap_admin_password }}"
+      server_uri: "ldapi:///"
+      validate_certs: false
 
-- name: Ajouter un utilisateur LDAP
-  community.general.ldap_entry:
-    bind_dn: "cn=admin,dc=yoga,dc=ch"
-    bind_pw: "{{ ldap_admin_password }}"
-    server_uri: "ldapi:///"
-    dn: "uid=noah,ou=users,dc=yoga,dc=ch"
-    state: present
-    objectClass:
-      - inetOrgPerson
-      - posixAccount
-      - top
-    attributes:
-      cn: "noah"
-      sn: "noah"
-      uid: "noah"
-      userPassword: "{{ user_password }}"
-      uidNumber: 10001         # L'attribut uidNumber est nécessaire
-      gidNumber: 10000         # L'attribut gidNumber est nécessaire (assurez-vous que c'est valide)
-      homeDirectory: "/home/noah"  # L'attribut homeDirectory est requis
-    recursive: false
-    referrals_chasing: "anonymous"
-    sasl_class: "external"
-    validate_certs: true
-  become: true
+  - name: Créer le groupe admin si inexistant
+    group:
+      name: admin
+      state: present
+    become: yes
+
+  - name: Créer un utilisateur local adminldap avec droits sudo
+    user:
+      name: adminldap
+      shell: /bin/bash
+      groups: sudo,admin
+      append: yes
+      create_home: yes
+      state: present
+    become: yes
+
+  - name: Définir le mot de passe pour adminldap
+    user:
+      name: adminldap
+      password: "{{ admin_ldap_password | password_hash('sha512') }}"
+    become: yes
+
+  - name: Autoriser le SSH pour adminldap
+    copy:
+      dest: "/home/adminldap/.ssh/authorized_keys"
+      content: "{{ admin_ssh_public_key }}"
+      owner: adminldap
+      group: adminldap
+      mode: '0600'
+    become: yes
+
+  - name: Installer les paquets NSS et PAM LDAP
+    apt:
+      name:
+        - libnss-ldapd
+        - libpam-ldapd
+      state: present
+      update_cache: yes
+
+  - name: Configurer NSS pour utiliser LDAP
+    lineinfile:
+      path: /etc/nsswitch.conf
+      regexp: '^({{ item.key }})\s+'
+      line: '{{ item.key }}: files ldap'
+      backrefs: yes
+    loop:
+      - { key: 'passwd' }
+      - { key: 'group' }
+      - { key: 'shadow' }
+
+  - name: Redémarrer nslcd
+    service:
+      name: nslcd
+      state: restarted
+      enabled: true
+
+  - name: Redémarrer ssh si configuré
+    service:
+      name: ssh
+      state: restarted
+      enabled: true
