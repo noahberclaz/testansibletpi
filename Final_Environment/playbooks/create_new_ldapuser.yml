@@ -11,4 +11,4 @@
   become: yes
 
   roles:
-    - ../roles/openldap_newuser
+    - openldap_newuser

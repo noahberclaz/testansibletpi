@@ -5,15 +5,10 @@
 
 ---
 users:
-  - username: "dber"
-    full_name: "David Berclaz"
-    password: "Parker55"
-    roles:
-      - user
-      - sudoadmin
-  - username: "kdob"
-    full_name: "Kevin Dobermann"
-    password: "Parker66"
+  - username: "cfit"
+    full_name: "Carlos Fitipaldi"
+    password: "Parker75"
     roles:
       - user
       - ldapadmin
+      - sudoadmin
