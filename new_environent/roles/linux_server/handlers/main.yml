@@ -1,0 +1,10 @@
+# Nom du playbook : Mise à jour des serveurs Linux
+# Auteur : Noah Berclaz
+# Date : 24.04.2025
+# Description : Ce handler redémarrer le serveur une fois mis à jour
+
+---
+- name: Reboot the server
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+    test_command: whoami

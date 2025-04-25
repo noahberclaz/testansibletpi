@@ -1,0 +1,42 @@
+# Nom du playbook : Installation d'une application web
+# Auteur : Noah Berclaz
+# Date : 24.04.2025
+# Description : Ce playbook installe tout le nécéssaire pour l'application web cible
+
+---
+- name: Installer Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Installer Node.js et npm
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+  become: true
+
+- name: Copier l'application Node.js complète
+  copy:
+    src: ../files/
+    dest: /opt/app/
+    mode: '0755'
+    owner: root
+    group: root
+  become: true
+
+- name: Lancer server.js avec Node (en arrière-plan avec nohup)
+  shell: nohup node /opt/app/server.js > /opt/app/server.log 2>&1 &
+  args:
+    creates: /tmp/node_server_started
+  register: start_node
+  changed_when: start_node.rc == 0
+
+- name: Marquer que le serveur est lancé (évite de le relancer à chaque run)
+  file:
+    path: /tmp/node_server_started
+    state: touch
+  when: start_node.rc == 0

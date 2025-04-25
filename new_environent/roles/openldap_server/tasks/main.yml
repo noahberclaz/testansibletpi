@@ -1,0 +1,195 @@
+# Nom du playbook : Installation d'une application web
+# Auteur : Noah Berclaz
+# Date : 24.04.2025
+# Description : Ce playbook installe tout le nécéssaire pour l'application web cible
+
+---
+  - name: Installer debconf-utils et python-ldap sur le serveur distant
+    apt:
+      name:
+        - debconf-utils
+        - python3-ldap
+      state: present
+      update_cache: yes
+
+  - name: Installer les paquets OpenLDAP
+    apt:
+      name:
+        - slapd
+        - ldap-utils
+      state: present
+      update_cache: yes
+
+  - name: Pré-configurer slapd avec debconf
+    ansible.builtin.debconf:
+      name: slapd
+      question: "{{ item.question }}"
+      value: "{{ ldap_admin_password }}"
+      vtype: "string"
+    loop:
+      - { question: "slapd/internal/generated_adminpw" }
+      - { question: "slapd/internal/adminpw" }
+      - { question: "slapd/internal/adminpw_again" }
+      - { question: "slapd/password1" }
+      - { question: "slapd/password2" }
+
+  - name: Réinstaller slapd en mode silencieux avec les paramètres préconfigurés
+    apt:
+      name: slapd
+      state: present
+      force: yes
+
+  - name: Générer le fichier debconf pour la configuration initiale de slapd
+    debconf:
+      name: slapd
+      question: "{{ item.question }}"
+      value: "{{ item.value }}"
+      vtype: "{{ item.vtype }}"
+    with_items:
+      - { question: "slapd/internal/adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/internal/generated_adminpw", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/password1", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/password2", value: "{{ ldap_admin_password }}", vtype: "password" }
+      - { question: "slapd/domain", value: "{{ ldap_domain }}", vtype: "string" }
+      - { question: "slapd/allow_ldap_v2", value: "false", vtype: "boolean" }
+      - { question: "slapd/no_configuration", value: "false", vtype: "boolean" }
+
+  - name: Reconfigurer slapd
+    command: dpkg-reconfigure -f noninteractive slapd
+
+  - name: Vérifier si ldap_domain est bien formé
+    assert:
+      that:
+        - ldap_domain.split('.') | length == 2
+      fail_msg: "Le domaine LDAP n'est pas valide, il doit être sous forme 'example.com'."
+
+  - name: Créer une OU pour les utilisateurs s’il n’existe pas
+    community.general.ldap_entry:
+      dn: "ou=users,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+      objectClass:
+        - organizationalUnit
+      attributes:
+        ou: users
+      bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+      bind_pw: "{{ ldap_admin_password }}"
+      server_uri: "ldapi:///"
+      validate_certs: false
+
+  - name: Créer le groupe admin si inexistant
+    group:
+      name: admin
+      state: present
+    become: yes
+
+  - name: Créer le groupe ldapadmin si inexistant
+    group:
+      name: ldapadmin
+      state: present
+    become: yes
+
+  - name: Créer le groupe user si inexistant
+    group:
+      name: user
+      state: present
+    become: yes
+
+  - name: Créer le groupe sudoadmin si inexistant
+    group:
+      name: sudoadmin
+      state: present
+    become: yes
+
+  - name: Autoriser le groupe sudoadmin à exécuter n'importe quelle commande sans mot de passe
+    copy:
+      dest: /etc/sudoers.d/sudoadmin
+      content: "%sudoadmin ALL=(ALL) NOPASSWD:ALL\n"
+      mode: '0440'
+    become: yes
+
+  - name: Autoriser ldapadmin à utiliser les outils LDAP avec sudo
+    lineinfile:
+      path: /etc/sudoers
+      regexp: '^%ldapadmin'
+      line: '%ldapadmin ALL=(ALL) NOPASSWD: /usr/sbin/ldapadd, /usr/sbin/ldapmodify, /usr/sbin/ldapdelete, /usr/sbin/slapd'
+    become: yes
+
+  - name: Accorder les permissions sur les fichiers de configuration LDAP
+    file:
+      path: "{{ item }}"
+      owner: root
+      group: ldapadmin
+      mode: '0640'
+    loop:
+      - /etc/ldap/ldap.conf
+      - /etc/ldap/slapd.conf
+      - /etc/ssl/certs
+    become: yes
+
+  - name: Ajouter ACL pour ldapadmin avec ldapmodify
+    command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/ldapadmin_acl.ldif
+    become: yes
+    when: slapd_conf_file.stat.exists == False
+
+  - name: Redémarrer slapd pour appliquer la nouvelle ACL
+    service:
+      name: slapd
+      state: restarted
+    become: yes
+
+  - name: Créer un utilisateur local adminldap avec droits sudo
+    user:
+      name: adminldap
+      shell: /bin/bash
+      groups: sudo,admin
+      append: yes
+      create_home: yes
+      state: present
+    become: yes
+
+  - name: Définir le mot de passe pour adminldap
+    user:
+      name: adminldap
+      password: "{{ admin_ldap_password | password_hash('sha512') }}"
+    become: yes
+
+  - name: Autoriser le SSH pour adminldap
+    copy:
+      dest: "/home/adminldap/.ssh/authorized_keys"
+      content: "{{ admin_ssh_public_key }}"
+      owner: adminldap
+      group: adminldap
+      mode: '0600'
+    become: yes
+
+  
+
+  - name: Installer les paquets NSS et PAM LDAP
+    apt:
+      name:
+        - libnss-ldapd
+        - libpam-ldapd
+      state: present
+      update_cache: yes
+
+  - name: Configurer NSS pour utiliser LDAP
+    lineinfile:
+      path: /etc/nsswitch.conf
+      regexp: '^({{ item.key }})\s+'
+      line: '{{ item.key }}: files ldap'
+      backrefs: yes
+    loop:
+      - { key: 'passwd' }
+      - { key: 'group' }
+      - { key: 'shadow' }
+
+  - name: Redémarrer nslcd
+    service:
+      name: nslcd
+      state: restarted
+      enabled: true
+
+  - name: Redémarrer ssh si configuré
+    service:
+      name: ssh
+      state: restarted
+      enabled: true

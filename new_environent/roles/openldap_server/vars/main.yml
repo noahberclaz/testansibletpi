@@ -1,0 +1,7 @@
+---
+# vars file for openldap_server
+ssh_key_file: "../roles/openldap_server/files/id_rsa.pub"
+users:
+  - username: "{{ new_username }}"
+    password: "{{ new_password }}"
+    ssh_key: "{{ lookup('file', ssh_key_file) }}"

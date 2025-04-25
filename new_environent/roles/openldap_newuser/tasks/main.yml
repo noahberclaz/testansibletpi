@@ -1,0 +1,60 @@
+# Nom du playbook : Création d'utilisateurs LDAP
+# Auteur : Noah Berclaz
+# Date : 25.04.2025
+# Description : Ce playbook Crée de nouveaux utilisateurs LDAP
+
+---
+- name: Créer les utilisateurs
+  user:
+    name: "{{ item.username }}"
+    comment: "{{ item.full_name }}"  # Remplace full_name par comment
+    password: "{{ item.password | password_hash('sha512') }}"
+    shell: /bin/bash
+    state: present
+    create_home: yes
+  with_items: "{{ users }}"
+  when: item.roles is defined
+
+- name: Ajouter l'utilisateur aux groupes appropriés
+  user:
+    name: "{{ item.username }}"
+    groups: "{{ item.roles | join(',') }}"
+    append: yes
+  with_items: "{{ users }}"
+  when: item.roles is defined
+
+- name: Créer le répertoire .ssh pour les utilisateurs sudo
+  file:
+    path: "/home/{{ item.username }}/.ssh"
+    state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: '0700'
+  with_items: "{{ users }}"
+  when: "'sudoadmin' in item.roles"
+  become: yes
+
+- name: Configurer SSH pour l'utilisateur avec droits sudo
+  copy:
+    dest: "/home/{{ item.username }}/.ssh/authorized_keys"
+    content: "{{ admin_ssh_public_key }}"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: '0600'
+  with_items: "{{ users }}"
+  when: "'sudoadmin' in item.roles"
+  become: yes
+
+- name: Ajouter l'utilisateur LDAP admin si besoin
+  user:
+    name: "{{ item.username }}"
+    groups: ldapadmin
+    append: yes
+  with_items: "{{ users }}"
+  when: item.roles is defined and 'ldapadmin' in item.roles
+
+- name: Redémarrer le service SSH si un utilisateur sudo a été ajouté
+  service:
+    name: ssh
+    state: restarted
+  when: users | selectattr('roles', 'contains', 'sudoadmin') | list | length > 0

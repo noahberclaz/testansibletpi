@@ -1,0 +1,15 @@
+dn: uid={{ item.username }},ou=users,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+objectClass: inetOrgPerson
+uid: {{ item.username }}
+cn: {{ item.username }}
+sn: {{ item.username }}
+userPassword: {{ item.password }}
+sshPublicKey: "{{ item.ssh_key }}"
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/{{ item.username }}
+loginShell: /bin/bash
+gecos: {{ item.username }}
+
+# Optional for creating home directory and assigning permissions (if desired)
+# homeDirectory: /home/{{ item.username }}
