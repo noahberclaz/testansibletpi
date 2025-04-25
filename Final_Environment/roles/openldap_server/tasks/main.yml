@@ -80,6 +80,61 @@
       state: present
     become: yes
 
+  - name: Créer le groupe ldapadmin si inexistant
+    group:
+      name: ldapadmin
+      state: present
+    become: yes
+
+  - name: Créer le groupe user si inexistant
+    group:
+      name: user
+      state: present
+    become: yes
+
+  - name: Créer le groupe sudoadmin si inexistant
+    group:
+      name: sudoadmin
+      state: present
+    become: yes
+
+  - name: Autoriser le groupe sudoadmin à exécuter n'importe quelle commande sans mot de passe
+    copy:
+      dest: /etc/sudoers.d/sudoadmin
+      content: "%sudoadmin ALL=(ALL) NOPASSWD:ALL\n"
+      mode: '0440'
+    become: yes
+
+  - name: Autoriser ldapadmin à utiliser les outils LDAP avec sudo
+    lineinfile:
+      path: /etc/sudoers
+      regexp: '^%ldapadmin'
+      line: '%ldapadmin ALL=(ALL) NOPASSWD: /usr/sbin/ldapadd, /usr/sbin/ldapmodify, /usr/sbin/ldapdelete, /usr/sbin/slapd'
+    become: yes
+
+  - name: Accorder les permissions sur les fichiers de configuration LDAP
+    file:
+      path: "{{ item }}"
+      owner: root
+      group: ldapadmin
+      mode: '0640'
+    loop:
+      - /etc/ldap/ldap.conf
+      - /etc/ldap/slapd.conf
+      - /etc/ssl/certs
+    become: yes
+
+  - name: Ajouter ACL pour ldapadmin avec ldapmodify
+    command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/ldapadmin_acl.ldif
+    become: yes
+    when: slapd_conf_file.stat.exists == False
+
+  - name: Redémarrer slapd pour appliquer la nouvelle ACL
+    service:
+      name: slapd
+      state: restarted
+    become: yes
+
   - name: Créer un utilisateur local adminldap avec droits sudo
     user:
       name: adminldap
@@ -104,6 +159,8 @@
       group: adminldap
       mode: '0600'
     become: yes
+
+  
 
   - name: Installer les paquets NSS et PAM LDAP
     apt:

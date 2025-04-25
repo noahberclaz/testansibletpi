@@ -4,7 +4,7 @@
 # Description : Ce playbook installe l'environnement OpenLDAP
 ---
 - name: Installation d'un serveur Web
-  hosts: ldap
+  hosts: ldapserver
   become: true
   vars_files:
     - ../secrets/secrets.yml

@@ -1,0 +1,19 @@
+# Nom du playbook : Création d'utilisateurs LDAP
+# Auteur : Noah Berclaz
+# Date : 25.04.2025
+# Description : Ce playbook Crée de nouveaux utilisateurs LDAP
+
+---
+users:
+  - username: "dber"
+    full_name: "David Berclaz"
+    password: "Parker55"
+    roles:
+      - user
+      - sudoadmin
+  - username: "kdob"
+    full_name: "Kevin Dobermann"
+    password: "Parker66"
+    roles:
+      - user
+      - ldapadmin
