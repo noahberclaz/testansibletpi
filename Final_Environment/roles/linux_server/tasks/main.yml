@@ -2,6 +2,7 @@
 # Auteur : Noah Berclaz
 # Date : 24.04.2025
 # Description : Ce playbook applique les mises à jour sur les machines linux
+
 ---
 - name: Attendre que le verrou dpkg soit libéré
   become: true
@@ -24,4 +25,4 @@
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-    cache_valid_time: 3600  # met à jour seulement si le cache a plus d'une heure
+    cache_valid_time: 3600

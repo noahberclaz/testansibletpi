@@ -2,6 +2,7 @@
 # Auteur : Noah Berclaz
 # Date : 24.04.2025
 # Description : Ce playbook installe l'environnement OpenLDAP
+
 ---
 - name: Installation d'un serveur Web
   hosts: ldapserver
@@ -16,4 +17,4 @@
         ssh_key: "{{ lookup('file', ssh_key_file) }}"
 
   roles:
-    - ../roles/openldap_server
+    - openldap_server

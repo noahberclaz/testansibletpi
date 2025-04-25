@@ -1,7 +1,7 @@
 # Nom du playbook : Création d'utilisateurs LDAP
 # Auteur : Noah Berclaz
 # Date : 25.04.2025
-# Description : Ce playbook Crée de nouveaux utilisateurs LDAP
+# Description : Ce fichier vars permet de créé de nouveaux utilisateurs en suivant le template
 
 ---
 users:

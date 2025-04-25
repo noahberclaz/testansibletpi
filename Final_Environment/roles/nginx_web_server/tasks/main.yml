@@ -1,12 +1,9 @@
----
 # Nom du playbook : Installation d'une application web
 # Auteur : Noah Berclaz
 # Date : 24.04.2025
 # Description : Ce playbook installe tout le nécéssaire pour l'application web cible
 
 ---
-# tasks file for nginx_web_server
-
 - name: Installer Nginx
   apt:
     name: nginx

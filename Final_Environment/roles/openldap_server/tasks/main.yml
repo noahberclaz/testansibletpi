@@ -2,6 +2,7 @@
 # Auteur : Noah Berclaz
 # Date : 24.04.2025
 # Description : Ce playbook installe tout le nécéssaire pour l'application web cible
+
 ---
   - name: Installer debconf-utils et python-ldap sur le serveur distant
     apt:
