@@ -1,0 +1,12 @@
+dn: uid={{ item.username }},ou={{ ldap_ou }},{{ ldap_base_dn }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: {{ item.username }}
+cn: {{ item.first_name }} {{ item.last_name }}
+sn: {{ item.last_name }}
+uidNumber: {{ ldap_uid_base + loop.index0 }}
+gidNumber: {{ ldap_uid_base }}
+homeDirectory: /home/{{ item.username }}
+loginShell: /bin/bash
+userPassword: {{ item.password | password_hash('sha512') }}

@@ -6,9 +6,9 @@
 ---
 - name: Installation d'un nouveau serveur LDAP
   hosts: ldapserver
-  become: true
   vars_files:
     - ../secrets/secrets.yml
+  become: true
   roles:
     - linux_server
     - openldap_server

@@ -1,0 +1,178 @@
+# Nom du playbook : Création d'un client LDAP
+# Auteur : Noah Berclaz
+# Date : 28.04.2025
+# Description : Ce playbook Crée de nouvelles machines clientes LDAP
+
+---
+- name: Installer les paquets client LDAP et SSH
+  apt:
+    name:
+      - libnss-ldapd
+      - libpam-ldapd
+      - nslcd
+      - ldap-utils
+      - nscd
+      - sudo               # conserver sudo natif, ne PAS installer sudo-ldap
+    state: present
+    update_cache: yes
+  become: true
+- name: S’assurer que nslcd fonctionne
+  service:
+    name: nslcd
+    state: started
+    enabled: true
+  become: true
+
+- name: Configurer NSS pour LDAP
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^({{ item.key }})\s+.*'
+    line: '{{ item.key }}: files ldap'
+    backrefs: yes
+  loop:
+    - { key: 'passwd' }
+    - { key: 'group' }
+    - { key: 'shadow' }
+
+- name: Configurer le fichier ldap.conf
+  copy:
+    dest: /etc/ldap/ldap.conf
+    content: |
+      BASE dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+      URI ldap://{{ ldap_server_ip }}
+      LDAP_VERSION 3
+      TLS_CACERT /etc/ssl/certs/ca-certificates.crt
+  notify: Redémarrer les services LDAP
+
+- name: Configurer nslcd.conf
+  template:
+    src: nslcd.conf.j2
+    dest: /etc/nslcd.conf
+    mode: '0600'
+  notify: Redémarrer les services LDAP
+
+- name: Corriger /etc/nsswitch.conf pour inclure LDAP
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^(passwd|group|shadow):'
+    line: "{{ item.key }}: files ldap {{ 'systemd' if item.key != 'shadow' else '' }}"
+    backrefs: yes
+  loop:
+    - { key: 'passwd' }
+    - { key: 'group' }
+    - { key: 'shadow' }
+  become: true
+
+- name: Corriger /etc/nsswitch.conf pour le groupe
+  replace:
+    path: /etc/nsswitch.conf
+    regexp: '^group:.*'
+    replace: 'group: files ldap systemd'
+
+- name: Corriger /etc/nsswitch.conf pour shadow
+  replace:
+    path: /etc/nsswitch.conf
+    regexp: '^shadow:.*'
+    replace: 'shadow: files ldap'
+
+- name: S’assurer qu’il y a un saut de ligne à la fin de /etc/nsswitch.conf
+  lineinfile:
+    path: /etc/nsswitch.conf
+    line: ''
+    state: present
+    insertafter: EOF
+
+- name: Autoriser l’authentification par mot de passe SSH
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+  notify: Restart sshd
+  become: true
+
+- name: S’assurer que PAM mkhomedir est activé (auto création de home LDAP)
+  block:
+    - name: Activer pam_mkhomedir dans common-session
+      lineinfile:
+        path: /etc/pam.d/common-session
+        insertafter: 'session\s+required\s+pam_unix.so'
+        line: 'session required pam_mkhomedir.so skel=/etc/skel umask=0022'
+    - name: Activer pam_mkhomedir dans sshd
+      lineinfile:
+        path: /etc/pam.d/sshd
+        insertafter: 'session\s+required\s+pam_unix.so'
+        line: 'session required pam_mkhomedir.so skel=/etc/skel umask=0022'
+  become: true
+
+- name: « session required pam_mkhomedir.so » dans pam sshd
+  lineinfile:
+    path: /etc/pam.d/sshd
+    insertafter: 'session\s\+required\s\+pam_unix\.so'
+    line:  'session required pam_mkhomedir.so skel=/etc/skel umask=0022'
+    state: present
+  become: yes
+
+- name: Redémarrer le service nslcd
+  service:
+    name: nslcd
+    state: restarted
+  become: yes
+
+- name: Redémarrer les services critiques
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop:
+    - nslcd
+    - ssh
+
+# ⚠️ Sécurité : vérifier la disponibilité des comptes LDAP avant toute suppression locale
+
+- name: Attendre que l'utilisateur LDAP 'admind' soit disponible (timeout 30s)
+  command: getent passwd admind
+  register: ldap_user_check
+  retries: 6
+  delay: 5
+  until: ldap_user_check.rc == 0
+  ignore_errors: yes
+
+- name: Supprimer l'utilisateur sudo local si LDAP est prêt
+  user:
+    name: adminldap
+    state: absent
+    remove: yes
+  when: ldap_user_check is defined and ldap_user_check.rc == 0
+
+# 🛠️ Ajouter sudoers pour groupe LDAP
+- name: Autoriser les utilisateurs LDAP du groupe 'sudoadmin' à utiliser sudo
+  copy:
+    dest: /etc/sudoers.d/sudoadmin
+    content: |
+      %sudoadmin ALL=(ALL) NOPASSWD:ALL
+    mode: '0440'
+  become: true
+
+# S'assurer que NSS remonte bien le groupe sudoadmin
+- name: Vérifier que 'group' passe par LDAP
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^group:'
+    line: 'group: files ldap systemd'
+    backrefs: yes
+  become: true
+
+# 🎯 Assurer que sudo fonctionne avec LDAP
+- name: Configurer sudo pour utiliser LDAP (via nsswitch.conf)
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^sudoers:.*'
+    line: 'sudoers: ldap'
+  become: true
+
+- name: Assurer que les utilisateurs du groupe 'sudoadmin' peuvent utiliser sudo
+  lineinfile:
+    path: /etc/sudoers.d/sudoadmin
+    line: "%sudoadmin ALL=(ALL) NOPASSWD:ALL"
+    mode: '0440'
+  become: true

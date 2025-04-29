@@ -1,0 +1,3 @@
+---
+ldap_server_ip: "172.20.10.3" 
+ldap_base_dn: "dc=yoga,dc=ch"  

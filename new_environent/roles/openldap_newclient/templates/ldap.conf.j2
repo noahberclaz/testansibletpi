@@ -1,0 +1,19 @@
+# URI du serveur LDAP
+URI ldap://172.20.10.3
+
+# Base DN (le point de départ pour la recherche dans l'annuaire)
+BASE dc=yoga,dc=ch
+
+# Version LDAP (en général, LDAPv3 est recommandé)
+LDAP_VERSION 3
+
+# DN pour la liaison (si une liaison authentifiée est nécessaire)
+# Remarque : si le serveur ne nécessite pas d'authentification ou si un bind anonyme est utilisé, vous pouvez omettre cette ligne.
+BINDDN cn=admin,dc=yoga,dc=ch
+BINDPW meggitt12345
+
+# Certificat CA pour les connexions sécurisées (si vous utilisez LDAPS, ajoutez ce paramètre pour valider le certificat du serveur)
+
+
+# Paramètres de sécurité (si vous utilisez TLS/SSL)
+# TLS_REQCERT permet de spécifier si le client doit vérifier le certificat du serveur. La valeur 'demand' est recommandée pour LDAPS.

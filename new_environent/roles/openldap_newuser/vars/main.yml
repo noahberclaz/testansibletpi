@@ -5,10 +5,9 @@
 
 ---
 users:
-  - username: "cfit"
-    full_name: "Carlos Fitipaldi"
-    password: "Parker75"
-    roles:
-      - user
-      - ldapadmin
-      - sudoadmin
+  - username: "admind"
+    full_name: "Domain Admin"
+    password: "meggitt1234"
+    uidNumber: 10001
+    gidNumber: 1002
+    roles: ["user", "ldapadmin", "sudoadmin"]

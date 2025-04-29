@@ -1,0 +1,6 @@
+uid nslcd
+gid nslcd
+uri ldap://{{ ldap_server_ip }}
+base dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+binddn cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+bindpw {{ ldap_admin_password }}

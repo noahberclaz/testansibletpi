@@ -26,7 +26,7 @@
 
 - name: Mettre à jour les paquets installés
   ansible.builtin.apt:
-    upgrade: dist
+    upgrade: dist 
 
 - name: Supprimer les paquets devenus inutiles
   ansible.builtin.apt:

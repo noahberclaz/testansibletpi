@@ -5,3 +5,7 @@ users:
   - username: "{{ new_username }}"
     password: "{{ new_password }}"
     ssh_key: "{{ lookup('file', ssh_key_file) }}"
+
+user_gid:       1000
+ldapadmin_gid:  1001
+sudoadmin_gid:  1002

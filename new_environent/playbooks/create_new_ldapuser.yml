@@ -9,6 +9,7 @@
   vars_files:
     - ../secrets/secrets.yml
   become: yes
-
+  vars:
+    ldap_domain: "yoga.ch"
   roles:
     - openldap_newuser
