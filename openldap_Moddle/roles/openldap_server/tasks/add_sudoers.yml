@@ -1,0 +1,25 @@
+---
+- name: Vérifier si l’unité sudoers existe déjà
+  shell: ldapsearch -x -D "cn=admin,dc=yoga,dc=ch" -w "{{ ldap_admin_password }}" -b "ou=sudoers,dc=yoga,dc=ch" -s base dn
+  register: sudoers_check
+  failed_when: false
+
+- name: Ajouter l’unité sudoers si elle n’existe pas
+  command: ldapadd -x -D "cn=admin,dc=yoga,dc=ch" -w "{{ ldap_admin_password }}" -f /tmp/sudoers.ldif
+  when: "'dn: ou=sudoers,dc=yoga,dc=ch' not in sudoers_check.stdout"
+
+- name: Vérifier si l’unité sudoers existe déjà
+  shell: ldapsearch -x -D "cn=admin,dc=yoga,dc=ch" -w "{{ ldap_admin_password }}" -b "ou=sudoers,dc=yoga,dc=ch" -s base dn
+  register: sudoers_check
+  failed_when: false
+
+- name: Ajouter l’unité sudoers si elle n’existe pas
+  command: ldapadd -x -D "cn=admin,dc=yoga,dc=ch" -w "{{ ldap_admin_password }}" -f /tmp/sudoers2.ldif
+  when: "'dn: ou=sudoers,dc=yoga,dc=ch' not in sudoers_check.stdout"
+
+
+
+- name: Marquer l'import sudo comme fait
+  ansible.builtin.file:
+    path: /etc/ldap/sudoers_added.flag
+    state: touch

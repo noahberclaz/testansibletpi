@@ -1,0 +1,47 @@
+---
+- name: S'assurer que slapd est démarré et activé
+  service:
+    name: slapd
+    state: started
+    enabled: true
+
+- name: Fixer les permissions de /etc/ldap/slapd.d
+  file:
+    path: /etc/ldap/slapd.d
+    owner: openldap
+    group: openldap
+    recurse: yes
+    mode: '0750'
+
+- name: Créer les OU People et Groups
+  community.general.ldap_entry:
+    dn: "ou={{ item }},dc=yoga,dc=ch"
+    objectClass:
+      - organizationalUnit
+    attributes:
+      ou: "{{ item }}"
+    bind_dn: "cn=admin,dc=yoga,dc=ch"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://172.20.10.3"
+    validate_certs: false
+  loop:
+    - People
+    - Groups
+
+- name: Créer les groupes LDAP standards
+  community.general.ldap_entry:
+    dn: "cn={{ item.name }},ou=Groups,dc=yoga,dc=ch"
+    objectClass:
+      - posixGroup
+    attributes:
+      cn: "{{ item.name }}"
+      gidNumber: "{{ item.gid }}"
+    bind_dn: "cn=admin,dc=yoga,dc=ch"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://172.20.10.3"
+    validate_certs: false
+  loop:
+    - { name: 'prog', gid: 5000 }
+    - { name: 'user', gid: 5001 }
+    - { name: 'ldapadmin', gid: 5002 }
+    - { name: 'sudoadmin', gid: 5003 }

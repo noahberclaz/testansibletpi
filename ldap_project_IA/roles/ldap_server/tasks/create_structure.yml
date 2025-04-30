@@ -1,0 +1,71 @@
+---
+- name: Créer l'OU "users"
+  community.general.ldap_entry:
+    dn: "ou=users,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    objectClass:
+      - organizationalUnit
+    attributes:
+      ou: users
+    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://{{ inventory_hostname }}"
+    validate_certs: false
+
+- name: Créer l'OU "groups"
+  community.general.ldap_entry:
+    dn: "ou=groups,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    objectClass:
+      - organizationalUnit
+    attributes:
+      ou: groups
+    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://{{ inventory_hostname }}"
+    validate_certs: false
+
+- name: Créer le groupe LDAP 'users'
+  community.general.ldap_entry:
+    dn: "cn=users,ou=groups,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    objectClass:
+      - posixGroup
+    attributes:
+      cn: users
+      gidNumber: 6000
+    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://{{ inventory_hostname }}"
+    validate_certs: false
+
+- name: Créer le groupe LDAP 'sudoadmin'
+  community.general.ldap_entry:
+    dn: "cn=sudoadmin,ou=groups,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    objectClass:
+      - posixGroup
+    attributes:
+      cn: sudoadmin
+      gidNumber: 6001
+    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://{{ inventory_hostname }}"
+    validate_certs: false
+
+- name: Créer le groupe LDAP 'ldapadmin'
+  community.general.ldap_entry:
+    dn: "cn=ldapadmin,ou=groups,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    objectClass:
+      - posixGroup
+    attributes:
+      cn: ldapadmin
+      gidNumber: 6002
+    bind_dn: "cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}"
+    bind_pw: "{{ ldap_admin_password }}"
+    server_uri: "ldap://{{ inventory_hostname }}"
+    validate_certs: false
+
+- name: Configurer sudo pour sudoadmin
+  copy:
+    dest: /etc/sudoers.d/sudoadmin
+    content: "%sudoadmin ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: '0440'

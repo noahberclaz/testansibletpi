@@ -1,0 +1,5 @@
+---
+base_dn: "ou=users,dc=yoga,dc=ch"
+ldap_uri: "ldap://172.20.10.3"
+bind_dn: "cn=admin,dc=yoga,dc=ch"
+bind_pw: "meggitt12345"

@@ -1,0 +1,14 @@
+dn: ou=sudoers,dc=yoga,dc=ch
+objectClass: organizationalUnit
+ou: sudoers
+
+dn: cn=sudoadmin,ou=sudoers,dc=yoga,dc=ch
+objectClass: top
+objectClass: sudoRole
+cn: sudoadmin
+sudoUser: %sudoadmin
+sudoHost: ALL
+sudoCommand: ALL
+sudoRunAsUser: ALL
+sudoOption: !authenticate
+sudoOrder: 10

@@ -1,0 +1,5 @@
+- name: Installer le serveur LDAP
+  hosts: ldap_server
+  become: true
+  roles:
+    - ldap_server

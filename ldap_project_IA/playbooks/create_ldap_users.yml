@@ -1,0 +1,5 @@
+- name: Créer les utilisateurs LDAP
+  hosts: ldap_server
+  become: true
+  roles:
+    - ldap_users

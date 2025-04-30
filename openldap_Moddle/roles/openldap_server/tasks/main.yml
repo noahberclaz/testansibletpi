@@ -1,0 +1,17 @@
+# Nom du playbook : Création d'un client LDAP
+# Auteur : Noah Berclaz
+# Date : 28.04.2025
+# Description : Ce playbook Crée de nouvelles machines clientes LDAP
+
+---
+- name: Préconfigurer slapd avec debconf
+  include_tasks: preseed_slapd.yml
+
+- name: Installer les paquets LDAP
+  include_tasks: install_ldap_packages.yml
+
+- name: Configurer service slapd
+  include_tasks: configure_slapd.yml
+
+- name: configurer le sudoers
+  include_tasks: add_sudoers.yml

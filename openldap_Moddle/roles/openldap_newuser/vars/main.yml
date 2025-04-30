@@ -1,0 +1,24 @@
+# Nom du playbook : Création d'utilisateurs LDAP
+# Auteur : Noah Berclaz
+# Date : 25.04.2025
+# Description : Ce fichier vars permet de créé de nouveaux utilisateurs en suivant le template
+
+---
+ldap_base_dn: "dc=yoga,dc=ch"
+
+ldap_groups:
+
+
+ldap_users:
+  - uid: lovelacea
+    sn: Lovelace
+    givenName: Ada
+    cn: Ada Lovelace
+    displayName: Ada Lovelace
+    uidNumber: 10000
+    gidNumber: 5001
+    gidNumber: 5003
+    userPassword: "{SSHA}e6fAV3muZa8qZAqY1LcH5tOWkyHKJRan"
+    gecos: Ada Lovelace
+    loginShell: /bin/bash
+    homeDirectory: /home/lovelacea

@@ -1,0 +1,11 @@
+BASE    dc=yoga,dc=ch
+URI     ldaps://{{ ldap_server_hostname }}
+
+bind_timelimit 30
+timelimit 30
+
+sudoers_base   ou=sudoers,dc=yoga,dc=ch
+sudoers_debug 0
+sudoers_timed yes
+
+TLS_CACERT      /etc/ssl/certs/ca-certificates.crt

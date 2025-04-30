@@ -1,0 +1,5 @@
+---
+ldap_base_dn: "dc=yoga,dc=ch"
+ldap_admin_dn: "cn=admin,{{ ldap_base_dn }}"
+ldap_domain: "yoga.ch"
+ldap_admin_password: "meggitt12345"

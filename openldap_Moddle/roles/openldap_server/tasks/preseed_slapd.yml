@@ -1,0 +1,18 @@
+---
+- name: Générer le fichier preseed pour slapd
+  copy:
+    dest: /tmp/slapd.preseed
+    content: |
+      slapd slapd/internal/generated_adminpw password {{ ldap_admin_password }}
+      slapd slapd/internal/adminpw            password {{ ldap_admin_password }}
+      slapd slapd/password1                   password {{ ldap_admin_password }}
+      slapd slapd/password2                   password {{ ldap_admin_password }}
+      slapd slapd/domain                      string yoga.ch
+      slapd shared/organization               string Yoga
+      slapd slapd/backend                     select MDB
+      slapd slapd/purge_database              boolean true
+      slapd slapd/move_old_database           boolean true
+      slapd slapd/no_configuration            boolean false
+
+- name: Injecter la préconfiguration dans debconf
+  command: debconf-set-selections /tmp/slapd.preseed

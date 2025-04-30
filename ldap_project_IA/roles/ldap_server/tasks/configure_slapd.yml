@@ -1,0 +1,16 @@
+---
+- name: Configurer NSS pour LDAP
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^({{ item }})\s+.*'
+    line: '{{ item }}: files ldap'
+    backrefs: yes
+  loop:
+    - passwd
+    - group
+    - shadow
+
+- name: Redémarrer slapd pour appliquer les configurations
+  service:
+    name: slapd
+    state: restarted

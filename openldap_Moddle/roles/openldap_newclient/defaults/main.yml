@@ -1,0 +1,5 @@
+---
+ldap_server_uri: "ldap://172.20.10.3"
+ldap_base_dn: "dc=yoga,dc=ch"
+ldap_bind_dn: "cn=admin,dc=yoga,dc=ch"
+ldap_bind_pw: "meggitt12345"

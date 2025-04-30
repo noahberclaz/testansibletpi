@@ -1,0 +1,33 @@
+dn: ou=People,{{ ldap_base_dn }}
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,{{ ldap_base_dn }}
+objectClass: organizationalUnit
+ou: Groups
+
+{% for group in ldap_groups %}
+dn: cn={{ group.cn }},ou=Groups,{{ ldap_base_dn }}
+objectClass: posixGroup
+cn: {{ group.cn }}
+gidNumber: {{ group.gidNumber }}
+
+{% endfor %}
+{% for user in ldap_users %}
+dn: uid={{ user.uid }},ou=People,{{ ldap_base_dn }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: {{ user.uid }}
+sn: {{ user.sn }}
+givenName: {{ user.givenName }}
+cn: {{ user.cn }}
+displayName: {{ user.displayName }}
+uidNumber: {{ user.uidNumber }}
+gidNumber: {{ user.gidNumber }}
+userPassword: {{ user.userPassword }}
+gecos: {{ user.gecos }}
+loginShell: {{ user.loginShell }}
+homeDirectory: {{ user.homeDirectory }}
+
+{% endfor %}

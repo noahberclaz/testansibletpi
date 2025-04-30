@@ -1,0 +1,17 @@
+---
+- name: Installer la bibliothèque Python LDAP nécessaire pour Ansible
+  ansible.builtin.apt:
+    name: python3-ldap
+    state: present
+  become: true
+
+- name: Installer les paquets nécessaires pour le serveur LDAP
+  apt:
+    name:
+      - slapd
+      - ldap-utils
+      - libnss-ldapd
+      - libpam-ldapd
+      - debconf-utils
+    state: present
+    update_cache: yes

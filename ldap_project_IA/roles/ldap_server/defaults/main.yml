@@ -1,0 +1,3 @@
+ldap_admin_password: mot_de_passe_admin
+ldap_domain: example.com
+ldap_server_ip: 172.20.10.3

@@ -1,0 +1,36 @@
+---
+- name: Générer le fichier preseed pour slapd
+  copy:
+    dest: /tmp/slapd.preseed
+    content: |
+      slapd slapd/internal/generated_adminpw password {{ ldap_admin_password }}
+      slapd slapd/internal/adminpw password {{ ldap_admin_password }}
+      slapd slapd/password1 password {{ ldap_admin_password }}
+      slapd slapd/password2 password {{ ldap_admin_password }}
+      slapd slapd/domain string {{ ldap_domain }}
+      slapd slapd/allow_ldap_v2 boolean false
+      slapd slapd/no_configuration boolean false
+
+- name: Injecter la configuration preseed dans debconf
+  command: debconf-set-selections /tmp/slapd.preseed
+
+- name: Installer slapd
+  apt:
+    name: slapd
+    state: present
+    force: true
+    update_cache: true
+
+- name: Assurer les permissions correctes du répertoire slapd.d
+  file:
+    path: /etc/ldap/slapd.d
+    owner: openldap
+    group: openldap
+    recurse: yes
+    mode: '0750'
+
+- name: Démarrer et activer slapd
+  service:
+    name: slapd
+    state: started
+    enabled: true

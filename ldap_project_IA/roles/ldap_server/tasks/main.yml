@@ -1,0 +1,9 @@
+---
+- name: Installer slapd avec preseed
+  include_tasks: install_slapd.yml
+
+- name: Configurer slapd
+  include_tasks: configure_slapd.yml
+
+- name: Créer les OU et groupes LDAP
+  include_tasks: create_structure.yml

@@ -1,0 +1,14 @@
+# Nom du playbook : Création d'utilisateurs LDAP
+# Auteur : Noah Berclaz
+# Date : 25.04.2025
+# Description : Ce playbook Crée de nouveaux utilisateurs LDAP
+
+---
+- name: Générer le fichier add-content.ldif
+  template:
+    src: add-content.ldif.j2
+    dest: /tmp/add-content.ldif
+
+- name: Importer le contenu dans LDAP
+  command: ldapadd -x -D "{{ ldap_admin_dn }}" -w "{{ ldap_admin_password }}" -f /tmp/add-content.ldif
+  when: ldap_users is defined and ldap_users | length > 0

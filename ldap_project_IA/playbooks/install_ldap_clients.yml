@@ -1,0 +1,5 @@
+- name: Installer et configurer les clients LDAP
+  hosts: ldap_clients
+  become: true
+  roles:
+    - ldap_client

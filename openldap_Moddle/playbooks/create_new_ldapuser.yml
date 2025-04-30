@@ -1,0 +1,15 @@
+# Nom du playbook : Création d'utilisateurs LDAP
+# Auteur : Noah Berclaz
+# Date : 25.04.2025
+# Description : Ce playbook Crée de nouveaux utilisateurs LDAP
+
+---
+- name: Créer des utilisateurs sur le serveur
+  hosts: ldapserver
+  vars_files:
+    - ../secrets/secrets.yml
+  become: yes
+  vars:
+    ldap_domain: "yoga.ch"
+  roles:
+    - openldap_newuser

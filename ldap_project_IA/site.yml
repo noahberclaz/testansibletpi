@@ -1,0 +1,14 @@
+- hosts: ldap_server
+  become: yes
+  roles:
+    - ldap_server
+
+- hosts: ldap_clients
+  become: yes
+  roles:
+    - ldap_client
+
+- hosts: ldap_server
+  become: yes
+  roles:
+    - ldap_users

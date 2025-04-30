@@ -1,0 +1,6 @@
+uid nslcd
+gid nslcd
+uri ldap://{{ hostvars[groups['ldap_server'][0]].ansible_host }}
+base dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+binddn cn=admin,dc={{ ldap_domain.split('.')[0] }},dc={{ ldap_domain.split('.')[1] }}
+bindpw {{ ldap_admin_password }}

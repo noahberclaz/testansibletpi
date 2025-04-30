@@ -1,0 +1,3 @@
+ldap_domain: yoga.ch
+ldap_admin_password: meggitt12345
+admin_ldap_password: "{{ 'AdminLDAP123' | password_hash('sha512') }}"
