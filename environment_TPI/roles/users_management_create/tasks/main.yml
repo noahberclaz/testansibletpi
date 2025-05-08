@@ -1,0 +1,42 @@
+---
+- name: Créer les utilisateurs
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: present
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    groups: "{{ item.groups | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    password: "{{ item.password | default(omit) }}"
+    append: yes
+    create_home: yes
+  loop: "{{ users }}"
+  register: user_create_results
+  ignore_errors: true
+
+- name: Ajouter la clé SSH si définie
+  ansible.builtin.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_key }}"
+    state: present
+  when: item.ssh_key is defined
+  loop: "{{ users }}"
+  register: ssh_key_results
+  ignore_errors: true
+
+- name: Journaliser les erreurs de création utilisateur
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR création de {{ item.item.name }} sur {{ inventory_hostname }} : {{ item.msg }}" \
+    >> {{ log_file }}
+  when: item.failed
+  loop: "{{ user_create_results.results }}"
+  delegate_to: localhost
+  run_once: false
+
+- name: Journaliser les erreurs d’ajout de clé SSH
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR clé SSH de {{ item.item.name }} sur {{ inventory_hostname }} : {{ item.msg }}" \
+    >> {{ log_file }}
+  when: item.failed
+  loop: "{{ ssh_key_results.results }}"
+  delegate_to: localhost
+  run_once: false

@@ -1,0 +1,7 @@
+---
+users:
+  - name: alice
+    shell: /bin/bash
+    groups: "sudo"
+    ssh_key: "ssh-rsa AAAAB3Nz... alice@newmachine"
+    comment: "Alice Duplice"

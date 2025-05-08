@@ -1,0 +1,17 @@
+---
+- name: Sauvegarder les fichiers de configuration critiques
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ backup_dir }}/{{ item | basename }}.{{ ansible_date_time.iso8601_basic_short }}"
+    remote_src: yes
+    backup: no
+  loop: "{{ backup_files }}"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Rapatrier les sauvegardes sur la machine Ansible
+  ansible.builtin.fetch:
+    src: "{{ backup_dir }}/{{ item | basename }}.{{ ansible_date_time.iso8601_basic_short }}"
+    dest: "{{ playbook_dir }}/../backups/{{ inventory_hostname }}/"
+    flat: yes
+  loop: "{{ backup_files }}"
+  when: ansible_facts['os_family'] == 'Debian'

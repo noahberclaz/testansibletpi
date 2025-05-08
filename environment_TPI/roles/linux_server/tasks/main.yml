@@ -1,0 +1,46 @@
+# Nom du playbook : Mise à jour des serveurs Linux
+# Auteur : Noah Berclaz
+# Date : 30.04.2025
+# Description : Ce playbook applique les mises à jour sur les machines linux
+
+---
+- name: Attendre que le verrou dpkg soit libéré
+  shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+          fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do
+      echo "En attente que dpkg/apt se libère..."
+      sleep 5
+    done
+  changed_when: false
+
+- name: S'assurer que update-manager-core est installé
+  ansible.builtin.apt:
+    name: update-manager-core
+    state: present
+    update_cache: yes
+
+- name: Mettre à jour la liste des paquets disponibles
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Mettre à jour les paquets installés
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Supprimer les paquets devenus inutiles
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: yes
+
+- name: Vérifier si un redémarrage est nécessaire
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Redémarrer le serveur si nécessaire
+  ansible.builtin.reboot:
+    msg: "Redémarrage automatique après mise à jour"
+    connect_timeout: 5
+    reboot_timeout: 600
+  when: reboot_required_file.stat.exists

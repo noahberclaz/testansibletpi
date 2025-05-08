@@ -1,0 +1,8 @@
+---
+- name: Installation et configuration de Nginx
+  hosts: webservers
+  become: true
+  roles:
+    - linux_server
+    - config_backup_nginx
+    - nginx

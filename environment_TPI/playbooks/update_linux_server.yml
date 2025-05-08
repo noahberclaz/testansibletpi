@@ -1,0 +1,13 @@
+# Nom du playbook : Mise à jour des serveurs Linux
+# Auteur : Noah Berclaz
+# Date : 30.04.2025
+# Description : Ce playbook applique les mises à jour sur les machines linux
+
+---
+- name: Mise à jour système Linux
+  hosts: linux
+  vars_files:
+    - ../secrets/secrets.yml
+  become: true
+  roles:
+    - linux_server

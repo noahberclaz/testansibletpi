@@ -1,0 +1,19 @@
+---
+- name: Supprimer les utilisateurs
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: absent
+    remove: yes
+  loop: "{{ users }}"
+  register: del_results
+  ignore_errors: true
+
+- name: Journaliser les erreurs de suppression
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR : suppression de {{ item.item.name }} a échoué sur {{ inventory_hostname }} : {{ item.msg }}" \
+    >> {{ log_file }}
+  delegate_to: localhost
+  become: false
+  run_once: true
+  loop: "{{ del_results.results }}"
+  when: item.failed

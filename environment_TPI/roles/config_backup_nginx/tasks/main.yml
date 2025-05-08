@@ -1,0 +1,8 @@
+---
+- name: Sauvegarder le fichier nginx.conf existant s'il existe
+  ansible.builtin.copy:
+    src: /etc/nginx/nginx.conf
+    dest: "/etc/nginx/nginx.conf.bak_{{ ansible_date_time.iso8601 }}"
+    remote_src: yes
+  when: ansible_facts['distribution'] == 'Ubuntu'
+  ignore_errors: yes

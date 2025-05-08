@@ -1,0 +1,9 @@
+---
+- name: Gestion des utilisateurs Linux - Suppression
+  hosts: servers
+  vars_files: ../secrets/secrets.yml
+  become: true
+  roles:
+    - config_backup_user
+    - users_management_delete
+

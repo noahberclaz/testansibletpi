@@ -1,0 +1,46 @@
+---
+- name: Installer Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  register: install_result
+  ignore_errors: yes
+
+- name: Journaliser l'erreur d'installation si elle existe
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR : Échec de l'installation de Nginx sur {{ inventory_hostname }} - {{ install_result.stderr }}" \
+    >> {{ log_file }}
+  delegate_to: localhost
+  when: install_result.failed
+
+- name: Copier la configuration personnalisée de Nginx
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: '0644'
+  notify: Redémarrer nginx
+  register: config_result
+  ignore_errors: yes
+
+- name: Journaliser l'erreur de configuration si elle existe
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR : Échec de la configuration Nginx sur {{ inventory_hostname }} - {{ config_result.stderr }}" \
+    >> {{ log_file }}
+  delegate_to: localhost
+  when: config_result.failed
+
+- name: Activer et démarrer le service Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes
+  register: start_result
+  ignore_errors: yes
+
+- name: Journaliser l'erreur de démarrage si elle existe
+  ansible.builtin.shell: |
+    echo "[{{ ansible_date_time.iso8601 }}] ERREUR : Échec du démarrage de Nginx sur {{ inventory_hostname }} - {{ start_result.stderr }}" \
+    >> {{ log_file }}
+  delegate_to: localhost
+  when: start_result.failed

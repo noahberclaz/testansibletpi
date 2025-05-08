@@ -1,0 +1,6 @@
+---
+backup_files:
+  - /etc/ssh/sshd_config
+  - /etc/sudoers
+  - /etc/nsswitch.conf
+backup_dir: "/var/backups"
